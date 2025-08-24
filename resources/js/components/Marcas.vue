@@ -2,10 +2,11 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">Busca de marcas</div>
-
-                    <div class="card-body">
+                <!-- inicio card de bysca -->
+                <card-component 
+                    titulo="Busca de marcas"
+                > 
+                    <template v-slot:conteudo>
                         <div class="form-row">
                             <div class="col mb-3">
                                 <input-container-component
@@ -40,14 +41,30 @@
                                 </input-container-component>
                             </div>
                         </div>
-                    </div>
+                    </template>
 
-                    <div class="card-footer">
+                    <template v-slot:rodape>
                         <button type="submit" class="btn btn-primary btn-sm float-right">
                             Pesquisar
                         </button>
-                    </div>
-                </div>
+                    </template>
+
+                </card-component>
+
+                <card-component 
+                    titulo="Relação de marcas"
+                > 
+                    <template v-slot:conteudo>
+                        <table-component></table-component>
+                    </template>
+
+                    <template v-slot:rodape>
+                        <button type="button" class="btn btn-primary btn-sm float-right">
+                            Adicionar
+                        </button>
+                    </template>
+
+                </card-component>
             </div>
         </div>
     </div>
