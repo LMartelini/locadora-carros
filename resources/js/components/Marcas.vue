@@ -68,9 +68,22 @@
                     </template>
 
                     <template v-slot:rodape>
-                        <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#modal-marca">
-                            Adicionar
-                        </button>
+                        <div class="row">
+                            <div class="col-10">
+                                <paginate-component>
+                                    <li v-for="l, indice in marcas.links" :key="indice" 
+                                    :class="l.active ? 'page-item active' : 'page-item'">
+                                        <a class="page-link" v-html="l.label" @click="paginacao(l)"></a>
+                                    </li>
+                                </paginate-component>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#modal-marca">
+                                    Adicionar
+                                </button>
+                            </div>
+                        </div>
+                            
                     </template>
 
                 </card-component>
@@ -151,6 +164,12 @@
             }
         },
         methods: {
+            paginacao(l) {
+                if(l.url){
+                    this.urlBase = l.url; //atualiza url com paginação
+                    this.carregarLista(); 
+                }
+            },
             carregarLista() {
                 let config = {
                     headers: {
