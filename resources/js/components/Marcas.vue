@@ -21,6 +21,7 @@
                                         id="inputId" 
                                         aria-describedby="idHelp"
                                         placeholder="ID"
+                                        v-model="busca.id"
                                     >
                                 </input-container-component>
                             </div>
@@ -37,6 +38,7 @@
                                         id="inputNome" 
                                         aria-describedby="nomeHelp"
                                         placeholder="Nome da marca"
+                                        v-model="busca.nome"
                                     >
                                 </input-container-component>
                             </div>
@@ -44,7 +46,7 @@
                     </template>
 
                     <template v-slot:rodape>
-                        <button type="submit" class="btn btn-primary btn-sm float-right">
+                        <button type="submit" class="btn btn-primary btn-sm float-right" @click="pesquisar()">
                             Pesquisar
                         </button>
                     </template>
@@ -56,7 +58,10 @@
                 > 
                     <template v-slot:conteudo>
                         <table-component 
-                            :dados="marcas.data" 
+                            :dados="marcas.data"
+                            :visualizar="false" 
+                            :atualizar="true" 
+                            :remover="true" 
                             :titulos="{
                                 id: {titulo: 'ID', tipo: 'texto'},
                                 nome: {titulo: 'Nome', tipo: 'texto'},
@@ -146,11 +151,17 @@
         data() {
             return {
                 urlBase: 'http://localhost:8000/api/v1/marca',
+                urlPaginacao: '',
+                urlFiltro: '',
                 nomeMarca: '',
                 arquivoImagem: [],
                 transacaoStatus: '',
                 transacaoDetalhes: {},
-                marcas: { data: [] }
+                marcas: { data: [] },
+                busca: {
+                    id: '',
+                    nome: ''
+                }
             }
         },
         computed: {
@@ -164,23 +175,46 @@
             }
         },
         methods: {
+            pesquisar()  {
+                let filtro = '';
+
+                for(let chave in this.busca) {
+
+                    if(this.busca[chave]){
+                        if(filtro != ''){
+                            filtro += ";";
+                        }
+                        filtro += chave + ':like:' + this.busca[chave];
+                    }
+                }
+
+                if(filtro != ''){
+                    this.urlPaginacao = 'page=1'
+                    this.urlFiltro = '&filtro='+filtro;
+                } else {
+                    this.urlFiltro = '';
+                }
+
+                this.carregarLista();
+            },
             paginacao(l) {
                 if(l.url){
-                    this.urlBase = l.url; //atualiza url com paginação
+                    // this.urlBase = l.url; //atualiza url com paginação
+                    this.urlPaginacao = l.url.split('?')[1]
                     this.carregarLista(); 
                 }
             },
             carregarLista() {
+                let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro;
                 let config = {
                     headers: {
                         'Accept': 'application/json',
                         'Authorization': this.token
                     }
                 }
-                axios.get(this.urlBase, config)
+                axios.get(url, config)
                     .then(response => {
                         this.marcas = response.data
-                        console.log(this.marcas)
                     })
                     .catch(errors => {
                         console.log(errors)
@@ -190,9 +224,6 @@
                 this.arquivoImagem = e.target.files
             },
             salvar() {
-                console.log(this.nomeMarca)
-                console.log(this.arquivoImagem[0])
-
                 let formData = new FormData();
                 formData.append('nome', this.nomeMarca);
                 formData.append('imagem', this.arquivoImagem[0]);
